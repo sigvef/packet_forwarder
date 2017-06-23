@@ -8,6 +8,13 @@
 Lora network packet forwarder project
 ======================================
 
+> To build for the kerlink:
+>`ARCH=armv5tejl CROSS_COMPILE=arm-linux-gnueabi- make`.
+> You need gcc-arm-linux-gnueabi.
+
+ 
+
+
 1. Core program: basic_pkt_fwd
 -------------------------------
 
