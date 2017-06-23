@@ -941,6 +941,24 @@ void thread_up(void) {
 		pkt_in_dgram = 0;
 		for (i=0; i < nb_pkt; ++i) {
 			p = &rxpkt[i];
+
+            MSG("\n=== Received LoRa packet ===\n");
+            MSG("freq_hz: %zu\n", p->freq_hz);
+            MSG("if_chain: %u\n", p->if_chain);
+            MSG("status: %u\n", p->status);
+            MSG("count_us: %zu\n", p->count_us);
+            MSG("modulation: %u\n", p->modulation);
+            MSG("bandwidth: %u\n", p->bandwidth);
+            MSG("datarate: %zu\n", p->datarate);
+            MSG("coderate: %u\n", p->coderate);
+            MSG("rssi: %.6f\n", p->rssi);
+            MSG("snr: %.6f\n", p->snr);
+            MSG("snr_min: %.6f\n", p->snr_min);
+            MSG("snr_max: %.6f\n", p->snr_max);
+            MSG("crc: %u\n", p->crc);
+            MSG("size: %u\n", p->size);
+            MSG("payload: %.*s\n\n", p->size > 256 ? 256 : p->size, p->payload);
+
 			
 			/* basic packet filtering */
 			pthread_mutex_lock(&mx_meas_up);
@@ -1338,6 +1356,7 @@ void thread_down(void) {
 			/* initialize TX struct and try to parse JSON */
 			memset(&txpkt, 0, sizeof txpkt);
 			root_val = json_parse_string_with_comments((const char *)(buff_down + 4)); /* JSON offset */
+            MSG("\nIncoming JSON: %s\n\n", (const char *)(buff_down + 4));
 			if (root_val == NULL) {
 				MSG("WARNING: [down] invalid JSON, TX aborted\n");
 				continue;
@@ -1565,6 +1584,25 @@ void thread_down(void) {
 			
 			/* transfer data and metadata to the concentrator, and schedule TX */
 			pthread_mutex_lock(&mx_concent); /* may have to wait for a fetch to finish */
+
+            MSG("\n=== Sending LoRa packet ===\n");
+            MSG("freq_hz: %zu\n", txpkt.freq_hz);
+            MSG("tx_mode: %u\n", txpkt.tx_mode);
+            MSG("count_us: %zu\n", txpkt.count_us);
+            MSG("rf_chain: %u\n", txpkt.rf_chain);
+            MSG("rf_power: %i\n", txpkt.rf_power);
+            MSG("modulation: %u\n", txpkt.modulation);
+            MSG("bandwidth: %u\n", txpkt.bandwidth);
+            MSG("datarate: %zu\n", txpkt.datarate);
+            MSG("coderate: %u\n", txpkt.coderate);
+            MSG("invert_pol: %d\n", txpkt.invert_pol);
+            MSG("f_dev: %u\n", txpkt.f_dev);
+            MSG("preamble: %u\n", txpkt.preamble);
+            MSG("no_crc: %d\n", txpkt.no_crc);
+            MSG("no_header: %d\n", txpkt.no_header);
+            MSG("size: %u\n", txpkt.size);
+            MSG("payload: %.*s\n\n", txpkt.size > 256 ? 256 : txpkt.size, txpkt.payload);
+
 			i = lgw_send(txpkt);
 			pthread_mutex_unlock(&mx_concent); /* free concentrator ASAP */
 			if (i == LGW_HAL_ERROR) {
